@@ -51,7 +51,7 @@ Capistrano::Configuration.instance(:must_exist).load do
                   end
         hipchat_client[hipchat_room_name].
           send(deploy_user, message, :notify => hipchat_announce)
-      rescue
+      rescue => e
         logger.info "Error while updating hipchat. #{e.inspect}"
       end
     end
