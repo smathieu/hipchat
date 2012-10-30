@@ -17,24 +17,28 @@ Capistrano::Configuration.instance(:must_exist).load do
       set :hipchat_with_migrations, true
     end
 
-    task :notify_deploy_started do
-      if hipchat_send_notification
-        on_rollback do
+    task :notify_deploy_started, :on_error => :continue do
+      begin
+        if hipchat_send_notification
+          on_rollback do
+            hipchat_client[hipchat_room_name].
+              send(deploy_user, "#{human} cancelled deployment of #{deployment_name} to #{env}.", :notify => hipchat_announce)
+          end
+
+          message = if fetch(:hipchat_message)
+                      hipchat_message
+                    else
+                      message = "#{human} is deploying #{deployment_name} to #{env}"
+                      message << " (with migrations)" if hipchat_with_migrations
+                      message << "."
+                      message
+                    end
+
           hipchat_client[hipchat_room_name].
-            send(deploy_user, "#{human} cancelled deployment of #{deployment_name} to #{env}.", :notify => hipchat_announce)
+            send(deploy_user, message, :notify => hipchat_announce)
         end
-
-        message = if fetch(:hipchat_message)
-          hipchat_message
-        else
-          message = "#{human} is deploying #{deployment_name} to #{env}"
-          message << " (with migrations)" if hipchat_with_migrations
-          message << "."
-          message
-        end
-
-        hipchat_client[hipchat_room_name].
-          send(deploy_user, message, :notify => hipchat_announce)
+      rescue => e
+        logger.info "Error while updating hipchat. #{e.inspect}"
       end
     end
 
