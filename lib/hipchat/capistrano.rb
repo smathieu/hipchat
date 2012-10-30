@@ -42,14 +42,18 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
-    task :notify_deploy_finished do
-      message = if fetch(:hipchat_finished_message)
-        hipchat_finished_message
-      else
-        "#{human} finished deploying #{deployment_name} to #{env}."
+    task :notify_deploy_finished, :on_error => :continue  do
+      begin
+        message = if fetch(:hipchat_finished_message)
+                    hipchat_finished_message
+                  else
+                    "#{human} finished deploying #{deployment_name} to #{env}."
+                  end
+        hipchat_client[hipchat_room_name].
+          send(deploy_user, message, :notify => hipchat_announce)
+      rescue
+        logger.info "Error while updating hipchat. #{e.inspect}"
       end
-      hipchat_client[hipchat_room_name].
-        send(deploy_user, message, :notify => hipchat_announce)
     end
 
     def deployment_name
