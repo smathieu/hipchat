@@ -16,22 +16,9 @@ Gem::Specification.new do |s|
     "LICENSE",
     "README.textile"
   ]
-  s.files = [
-    ".document",
-    "LICENSE",
-    "README.textile",
-    "Rakefile",
-    "VERSION",
-    "hipchat.gemspec",
-    "lib/hipchat.rb",
-    "lib/hipchat/capistrano.rb",
-    "lib/hipchat/chef.rb",
-    "lib/hipchat/rails3_tasks.rb",
-    "lib/hipchat/railtie.rb",
-    "spec/hipchat_spec.rb",
-    "spec/spec.opts",
-    "spec/spec_helper.rb"
-  ]
+  s.files = `git ls-files`.split($/)
+  s.executables = s.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+  s.test_files = s.files.grep(%r{^(test|spec|features)/})
   s.homepage = "http://github.com/mojotech/hipchat"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.10"
