@@ -10,7 +10,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     task :trigger_notification do
-      set :hipchat_send_notification, true
+      set :hipchat_send_notification, fetch(:hipchat_events, %w(start finished)).include?('start')
     end
 
     task :configure_for_migrations do
